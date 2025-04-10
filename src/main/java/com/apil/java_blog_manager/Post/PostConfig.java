@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 
 @Controller
-@Order(20)
+@Order(10)
 public class PostConfig {
 
     @Bean

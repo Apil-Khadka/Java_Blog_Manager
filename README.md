@@ -44,9 +44,9 @@ Base URL: `/api/v1/posts`
 
 ```json
 {
-  "id": 1,
-  "name": "John Doe",
-  "email": "john.doe@example.com"
+  "username": "johndoe",
+  "email": "john.doe@example.com",
+   "password": "password123"
 }
 ```
 
@@ -57,7 +57,7 @@ Base URL: `/api/v1/posts`
   "id": 1,
   "title": "My First Blog Post",
   "content": "This is the content of the blog post.",
-  "authorId": 1
+  "user_id": 1
 }
 ```
 
@@ -66,11 +66,11 @@ Base URL: `/api/v1/posts`
 1. Clone the repository.
 2. Build the project using Maven:
    ```bash
-   mvn clean install
+   ./mvnw clean install
    ```
 3. Run the application:
    ```bash
-   mvn spring-boot:run
+   ./mvnw spring-boot:run
    ```
 
 ## License
