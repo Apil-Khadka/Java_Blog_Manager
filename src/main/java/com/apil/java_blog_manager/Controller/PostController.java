@@ -1,5 +1,7 @@
-package com.apil.java_blog_manager.Post;
+package com.apil.java_blog_manager.Controller;
 
+import com.apil.java_blog_manager.Entity.Post;
+import com.apil.java_blog_manager.Service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

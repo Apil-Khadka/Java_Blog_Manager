@@ -1,9 +1,9 @@
-package com.apil.java_blog_manager.Post;
+package com.apil.java_blog_manager.Entity;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="posts")
+@Table(name = "posts")
 public class Post {
 
     @Id
@@ -19,6 +19,7 @@ public class Post {
         this.content = content;
         this.user_id = user_id;
     }
+
     public Post() {
     }
 

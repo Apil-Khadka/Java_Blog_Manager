@@ -1,5 +1,7 @@
-package com.apil.java_blog_manager.Post;
+package com.apil.java_blog_manager.Service;
 
+import com.apil.java_blog_manager.Entity.Post;
+import com.apil.java_blog_manager.Repo.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,13 +33,13 @@ public class PostService {
     public Post updatePost(Long id, Post postDetails) {
         Post post = postRepository.findById(id).orElse(null);
         if (post != null) {
-           if(!post.getTitle().equals(postDetails.getTitle())) {
+            if (!post.getTitle().equals(postDetails.getTitle())) {
                 post.setTitle(postDetails.getTitle());
             }
-            if(!post.getContent().equals(postDetails.getContent())) {
+            if (!post.getContent().equals(postDetails.getContent())) {
                 post.setContent(postDetails.getContent());
             }
-            if(!post.getUser_id().equals(postDetails.getUser_id())) {
+            if (!post.getUser_id().equals(postDetails.getUser_id())) {
                 post.setUser_id(postDetails.getUser_id());
             }
             return postRepository.save(post);

@@ -1,15 +1,15 @@
-package com.apil.java_blog_manager.User;
+package com.apil.java_blog_manager.Service;
 
-import jakarta.transaction.Transactional;
+import com.apil.java_blog_manager.Entity.User;
+import com.apil.java_blog_manager.Repo.UserRepository;
+import com.apil.java_blog_manager.Security.UserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,11 +19,13 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder bcryptEncodePassword;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder bcryptEncodePassword){
+    public UserService(UserRepository userRepository, PasswordEncoder bcryptEncodePassword) {
         this.userRepository = userRepository;
         this.bcryptEncodePassword = bcryptEncodePassword;
     }
 
+
+/*
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -31,12 +33,12 @@ public class UserService implements UserDetailsService {
     public User getUserById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
+*/
 
-    public User saveUser(User user) {
+    public User registerUser(User user) {
         User saveUser = new User();
         saveUser.setUsername(user.getUsername());
         saveUser.setPassword(bcryptEncodePassword.encode(user.getPassword()));
-        saveUser.setEmail(user.getEmail());
         return userRepository.save(saveUser);
     }
 
@@ -61,12 +63,6 @@ public class UserService implements UserDetailsService {
             existingUser.setPassword(bcryptEncodePassword.encode(user.getPassword()));
         }
 
-        if (user.getEmail() != null && !user.getEmail().equals(existingUser.getEmail())) {
-            if (userRepository.existsUserByEmail(user.getEmail())) {
-                throw new IllegalStateException("Email already registered");
-            }
-            existingUser.setEmail(user.getEmail());
-        }
 
         return userRepository.save(existingUser);
     }
@@ -81,8 +77,8 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User  user = userRepository.findUserByUsername(username);
-        if(user == null) {
+        User user = userRepository.findUserByUsername(username);
+        if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
         return new UserPrinciple(user);

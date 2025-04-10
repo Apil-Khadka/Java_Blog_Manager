@@ -1,13 +1,12 @@
-package com.apil.java_blog_manager.User;
+package com.apil.java_blog_manager.Security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.apil.java_blog_manager.Entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class UserPrinciple implements UserDetails {
 

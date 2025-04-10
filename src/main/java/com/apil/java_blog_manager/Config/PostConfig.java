@@ -1,6 +1,9 @@
-package com.apil.java_blog_manager.Post;
+package com.apil.java_blog_manager.Config;
 
+import com.apil.java_blog_manager.Entity.Post;
+import com.apil.java_blog_manager.Repo.PostRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
@@ -8,10 +11,12 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 
 @Controller
-@Order(20)
+
 public class PostConfig {
 
     @Bean
+    @DependsOnDatabaseInitialization
+    @Order(3)
     CommandLineRunner initPost(PostRepository postRepository) {
         return args -> {
             Post post1 = new Post("Post 1", "Content of post 1", 1L);

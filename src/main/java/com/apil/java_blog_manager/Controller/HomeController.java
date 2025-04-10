@@ -1,4 +1,4 @@
-package com.apil.java_blog_manager;
+package com.apil.java_blog_manager.Controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
