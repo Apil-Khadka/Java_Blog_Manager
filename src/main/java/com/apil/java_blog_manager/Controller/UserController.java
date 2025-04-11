@@ -33,9 +33,11 @@ public class UserController {
         return userService.getUserById(id);
     }*/
 
+
+    @PostMapping("/register")
     @Operation(
             description = "Register user",
-            summary = "Register user",
+            summary = "Register user don't give id.",
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -43,24 +45,52 @@ public class UserController {
                     ),
             }
     )
-
-    @PostMapping("/register")
     public User createUser(@RequestBody User user) {
         return userService.registerUser(user);
     }
 
     @PostMapping("/login")
+    @Operation(
+            description = "Login user",
+            summary = "logins user, don't send id.",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200"
+                    ),
+            }
+    )
     public String loginUser(@RequestBody User user) {
         System.out.println(user);
         return applicationService.loginUser(user);
     }
 
     @PutMapping(path = "{id}")
+    @Operation(
+            description = "Update user",
+            summary = "update user, username and password",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "204"
+                    ),
+            }
+    )
     public User updateUser(@PathVariable Long id, @RequestBody User user) {
         return userService.updateUser(id, user);
     }
 
     @DeleteMapping(path = "{id}")
+    @Operation(
+            description = "Delete user",
+            summary = "delete user",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200"
+                    ),
+            }
+    )
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
