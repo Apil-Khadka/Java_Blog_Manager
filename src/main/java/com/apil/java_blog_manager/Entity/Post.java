@@ -12,12 +12,12 @@ public class Post {
     private Long id;
     private String title;
     private String content;
-    private Long user_id;
+    private Long userid;
 
-    public Post(String title, String content, Long user_id) {
+    public Post(String title, String content, Long userid) {
         this.title = title;
         this.content = content;
-        this.user_id = user_id;
+        this.userid = userid;
     }
 
     public Post() {
@@ -47,11 +47,11 @@ public class Post {
         this.content = content;
     }
 
-    public Long getUser_id() {
-        return user_id;
+    public Long getUserid() {
+        return userid;
     }
 
-    public void setUser_id(Long user_id) {
-        this.user_id = user_id;
+    public void setUserid(Long user_id) {
+        this.userid = user_id;
     }
 }

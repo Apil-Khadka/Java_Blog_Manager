@@ -1,5 +1,6 @@
 package com.apil.java_blog_manager.Security;
 
+import com.apil.java_blog_manager.Config.JWTFilter;
 import com.apil.java_blog_manager.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,16 +16,19 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class AppSecurityConfig {
 
     private final UserService userService;
+    private final JWTFilter jwtFilter;
 
     @Autowired
-    public AppSecurityConfig(UserService userService) {
+    public AppSecurityConfig(UserService userService, JWTFilter jwtFilter) {
         this.userService = userService;
+        this.jwtFilter = jwtFilter;
     }
 
 
@@ -37,6 +41,7 @@ public class AppSecurityConfig {
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
