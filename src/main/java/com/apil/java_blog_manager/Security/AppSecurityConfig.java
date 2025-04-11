@@ -37,7 +37,13 @@ public class AppSecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/v1/user/register", "/api/v1/user/login").permitAll()
+                        .requestMatchers(
+                                "/api/v1/user/register",
+                                "/api/v1/user/login",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/"
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
