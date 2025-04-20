@@ -6,6 +6,10 @@ import com.apil.java_blog_manager.Repo.RoleRepository;
 import com.apil.java_blog_manager.Repo.UserRepository;
 import com.apil.java_blog_manager.Security.UserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -48,24 +52,13 @@ public class UserService implements UserDetailsService {
         saveUser.setUsername(user.getUsername());
         saveUser.setPassword(bcryptEncodePassword.encode(user.getPassword()));
 
-        // Assign default USER role if no roles are provided
-        if (user.getRoles() == null || user.getRoles().isEmpty()) {
-            Role userRole = roleRepository.findByName("USER");
-            if (userRole == null) {
-                userRole = new Role("USER");
-                roleRepository.save(userRole);
-            }
-            saveUser.addRole(userRole);
-        } else {
-            // Assign provided roles
-            for (Role role : user.getRoles()) {
-                Role existingRole = roleRepository.findByName(role.getName());
-                if (existingRole == null) {
-                    existingRole = roleRepository.save(role);
-                }
-                saveUser.addRole(existingRole);
-            }
+        // Always assign USER role during registration, regardless of what roles are provided
+        Role userRole = roleRepository.findByName("USER");
+        if (userRole == null) {
+            userRole = new Role("USER");
+            roleRepository.save(userRole);
         }
+        saveUser.addRole(userRole);
 
         return userRepository.save(saveUser);
     }
@@ -92,18 +85,33 @@ public class UserService implements UserDetailsService {
             existingUser.setPassword(bcryptEncodePassword.encode(user.getPassword()));
         }
 
-        // Update roles if provided
+        // Update roles if provided - only admins can update roles
         if (user.getRoles() != null && !user.getRoles().isEmpty()) {
-            // Clear existing roles
-            existingUser.getRoles().clear();
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-            // Add new roles
-            for (Role role : user.getRoles()) {
-                Role existingRole = roleRepository.findByName(role.getName());
-                if (existingRole == null) {
-                    existingRole = roleRepository.save(role);
+            if (isAdmin) {
+                // Check if trying to assign ADMIN role
+                boolean containsAdminRole = user.getRoles().stream()
+                    .anyMatch(role -> "ADMIN".equals(role.getName()));
+
+                if (containsAdminRole) {
+                    throw new AccessDeniedException("Admin role can only be assigned through direct database access");
                 }
-                existingUser.addRole(existingRole);
+
+                // Clear existing roles
+                existingUser.getRoles().clear();
+
+                // Add new roles
+                for (Role role : user.getRoles()) {
+                    Role existingRole = roleRepository.findByName(role.getName());
+                    if (existingRole == null) {
+                        existingRole = roleRepository.save(role);
+                    }
+                    existingUser.addRole(existingRole);
+                }
+            } else {
+                throw new AccessDeniedException("Only administrators can update user roles");
             }
         }
 

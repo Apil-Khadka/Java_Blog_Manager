@@ -37,12 +37,16 @@ public class UserController {
     @PostMapping("/register")
     @Operation(
             description = "Register user",
-            summary = "Register user don't give id.",
+            summary = "Register a new user. The USER role will be automatically assigned regardless of any roles provided.",
             responses = {
                     @ApiResponse(
                             description = "Success",
                             responseCode = "200"
                     ),
+                    @ApiResponse(
+                            description = "Bad Request - Invalid user data",
+                            responseCode = "400"
+                    )
             }
     )
     public User createUser(@RequestBody User user) {
@@ -68,12 +72,24 @@ public class UserController {
     @PutMapping(path = "{id}")
     @Operation(
             description = "Update user",
-            summary = "update user, username and password",
+            summary = "Update user's username and password. Only administrators can update user roles. Admin role cannot be assigned through the API.",
             responses = {
                     @ApiResponse(
                             description = "Success",
-                            responseCode = "204"
+                            responseCode = "200"
                     ),
+                    @ApiResponse(
+                            description = "Not Found - User not found",
+                            responseCode = "404"
+                    ),
+                    @ApiResponse(
+                            description = "Forbidden - Only administrators can update user roles",
+                            responseCode = "403"
+                    ),
+                    @ApiResponse(
+                            description = "Bad Request - Username already taken",
+                            responseCode = "400"
+                    )
             }
     )
     public User updateUser(@PathVariable Long id, @RequestBody User user) {

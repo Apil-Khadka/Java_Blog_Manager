@@ -1,8 +1,14 @@
 package com.apil.java_blog_manager.Service;
 
 import com.apil.java_blog_manager.Entity.Post;
+import com.apil.java_blog_manager.Entity.User;
 import com.apil.java_blog_manager.Repo.PostRepository;
+import com.apil.java_blog_manager.Repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,10 +17,12 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -53,7 +61,23 @@ public class PostService {
 
 
     public void deletePost(Long id) {
-        postRepository.deleteById(id);
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Post not found with id: " + id));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        User currentUser = userRepository.findUserByUsername(currentUsername);
+
+        // Check if user is the post owner, an admin, or a moderator
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        boolean isModerator = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MODERATOR"));
+        boolean isOwner = post.getUser() != null && currentUser != null && post.getUser().getId().equals(currentUser.getId());
+
+        if (isAdmin || isModerator || isOwner) {
+            postRepository.deleteById(id);
+        } else {
+            throw new AccessDeniedException("You don't have permission to delete this post");
+        }
     }
 
 }

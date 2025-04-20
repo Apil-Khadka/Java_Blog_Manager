@@ -100,12 +100,20 @@ public class PostController {
     @DeleteMapping(path = "{id}")
     @Operation(
             description = "Delete post",
-            summary = "Delete a post by ID",
+            summary = "Delete a post by ID. Only the post owner, admin, or moderator can delete a post.",
             responses = {
                     @ApiResponse(
                             description = "Success",
                             responseCode = "204"
                     ),
+                    @ApiResponse(
+                            description = "Forbidden - User doesn't have permission to delete this post",
+                            responseCode = "403"
+                    ),
+                    @ApiResponse(
+                            description = "Not Found - Post not found",
+                            responseCode = "404"
+                    )
             }
     )
     public void deletePost(@PathVariable Long id) {
