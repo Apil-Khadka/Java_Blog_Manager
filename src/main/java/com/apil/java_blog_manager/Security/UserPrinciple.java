@@ -1,5 +1,6 @@
 package com.apil.java_blog_manager.Security;
 
+import com.apil.java_blog_manager.Entity.Role;
 import com.apil.java_blog_manager.Entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,6 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UserPrinciple implements UserDetails {
 
@@ -18,7 +22,13 @@ public class UserPrinciple implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("USER"));
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+
+        return user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .collect(Collectors.toSet());
     }
 
     @Override

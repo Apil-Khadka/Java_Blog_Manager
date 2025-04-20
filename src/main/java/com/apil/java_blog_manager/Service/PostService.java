@@ -27,7 +27,7 @@ public class PostService {
     }
 
     public List<Post> getPostsByUserId(Long userId) {
-        return postRepository.findPostByUserid(userId);
+        return postRepository.findPostById(userId);
     }
 
     public Post createPost(Post post) {
@@ -43,8 +43,8 @@ public class PostService {
             if (!post.getContent().equals(postDetails.getContent())) {
                 post.setContent(postDetails.getContent());
             }
-            if (!post.getUserid().equals(postDetails.getUserid())) {
-                post.setUserid(postDetails.getUserid());
+            if (!post.getId().equals(postDetails.getId())) {
+                post.setId(postDetails.getId());
             }
             return postRepository.save(post);
         }
