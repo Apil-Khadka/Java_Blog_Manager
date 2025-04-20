@@ -1,11 +1,16 @@
 package com.apil.java_blog_manager.Controller;
 
+import com.apil.java_blog_manager.DTO.PostRequestDTO;
+import com.apil.java_blog_manager.DTO.PostResponseDTO;
 import com.apil.java_blog_manager.Entity.Post;
 import com.apil.java_blog_manager.Service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,8 +38,9 @@ public class PostController {
                     ),
             }
     )
-    public List<Post> getAllPosts() {
-        return postService.getAllPosts();
+    public ResponseEntity<List<PostResponseDTO>> getAllPosts() {
+        List<PostResponseDTO> posts = postService.getAllPosts();
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping(path = "user/{user_id}")
@@ -48,8 +54,9 @@ public class PostController {
                     ),
             }
     )
-    public List<Post> getPostsByUserId(@PathVariable Long user_id) {
-        return postService.getPostsByUserId(user_id);
+    public ResponseEntity<List<PostResponseDTO>> getPostsByUserId(@PathVariable Long user_id) {
+        List<PostResponseDTO> posts = postService.getPostsByUserId(user_id);
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping(path = "{id}")
@@ -61,10 +68,18 @@ public class PostController {
                             description = "Success",
                             responseCode = "200"
                     ),
+                    @ApiResponse(
+                            description = "Not Found - Post not found",
+                            responseCode = "404"
+                    )
             }
     )
-    public Post getPostById(@PathVariable Long id) {
-        return postService.getPostById(id);
+    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable Long id) {
+        PostResponseDTO post = postService.getPostById(id);
+        if (post == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(post);
     }
 
     @PostMapping
@@ -73,13 +88,18 @@ public class PostController {
             summary = "Create a new post",
             responses = {
                     @ApiResponse(
-                            description = "Success",
-                            responseCode = "200"
+                            description = "Created",
+                            responseCode = "201"
                     ),
+                    @ApiResponse(
+                            description = "Bad Request - Invalid input",
+                            responseCode = "400"
+                    )
             }
     )
-    public Post createPost(@RequestBody Post post) {
-        return postService.createPost(post);
+    public ResponseEntity<PostResponseDTO> createPost(@RequestBody PostRequestDTO postDTO) {
+        PostResponseDTO createdPost = postService.createPost(postDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 
     @PutMapping(path = "{id}")
@@ -91,10 +111,18 @@ public class PostController {
                             description = "Success",
                             responseCode = "200"
                     ),
+                    @ApiResponse(
+                            description = "Not Found - Post not found",
+                            responseCode = "404"
+                    )
             }
     )
-    public Post updatePost(@PathVariable Long id, @RequestBody Post postDetails) {
-        return postService.updatePost(id, postDetails);
+    public ResponseEntity<PostResponseDTO> updatePost(@PathVariable Long id, @RequestBody PostRequestDTO postDTO) {
+        PostResponseDTO updatedPost = postService.updatePost(id, postDTO);
+        if (updatedPost == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(updatedPost);
     }
 
     @DeleteMapping(path = "{id}")
@@ -103,7 +131,7 @@ public class PostController {
             summary = "Delete a post by ID. Only the post owner, admin, or moderator can delete a post.",
             responses = {
                     @ApiResponse(
-                            description = "Success",
+                            description = "No Content - Successfully deleted",
                             responseCode = "204"
                     ),
                     @ApiResponse(
@@ -116,7 +144,18 @@ public class PostController {
                     )
             }
     )
-    public void deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
+    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+        try {
+            boolean deleted = postService.deletePost(id);
+            if (deleted) {
+                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } catch (IllegalStateException e) {
+            return ResponseEntity.notFound().build();
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 }
